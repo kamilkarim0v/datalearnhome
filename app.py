@@ -1,10 +1,12 @@
 ### 1.Работа с API. Извлечение данных изи OpenAPI T-Invest.
 import os
 import requests
+import logging
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 load_dotenv()
 
@@ -35,6 +37,9 @@ data = {
     "to": datetime.now(timezone.utc).isoformat(),
     "interval": intervals_dict[interval]
 }
+
+logging.info(f"Запрос к API: figi={figi}, interval={interval}, from={from_dt}")
+
 response = requests.post(url = URL, headers=headers, json=data)
 
 if response.status_code == 200:
@@ -47,6 +52,7 @@ else:
     # return None
     print(None)
 
+logging.info(f"Получено {len(df)} свечей из API")
 
 ### 2. Обработка DF данных.
 df['open'] = df['open_units'].astype(float) + df['open_nano'] / 1000000000
@@ -67,6 +73,7 @@ ren_col = {
 df = df.rename(columns=ren_col)
 
 ### 3. Подключение к БД Postgres (Docker). Разово создаем витрину (если нужно).
+
 from sqlalchemy import create_engine, text
 
 conn = create_engine('postgresql://postgres:postgres@localhost:5051/postgres') # 5051 это бд под клиентом Airflow
@@ -143,6 +150,8 @@ df.to_sql(
     method='multi'
 )
 
+logging.info(f"Загружено {len(df)} строк в temp_candles")
+
 #делаю инкрементальную загрузку
 sql = '''
     DELETE FROM candles
@@ -157,6 +166,8 @@ cursor.execute(text(sql))
 cursor.commit()
 cursor.close()
 
+logging.info("Инкрементальная загрузка завершена")
+
 #Проверка на дубликаты
 sql = '''
     select figi, interval, time, count(*) as cnt_rows
@@ -165,4 +176,9 @@ sql = '''
     HAVING COUNT(*) > 1;
 '''
 df_test_db = pd.read_sql(sql, conn)
-print(df_test_db)
+
+if df_test_db.empty:
+    logging.info("Нет дубликатов")
+else:
+    logging.error("Есть дубликаты")
+    logging.error(df_test_db.to_string())
