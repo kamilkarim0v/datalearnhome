@@ -4,6 +4,7 @@ import requests
 import logging
 import pandas as pd
 import numpy as np
+from sqlalchemy import create_engine, text
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -11,6 +12,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 load_dotenv()
 
 TOKEN = os.getenv('T_TOKEN')
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
 URL = "https://invest-public-api.tinkoff.ru/rest/tinkoff.public.invest.api.contract.v1.MarketDataService/GetCandles"
 
 headers = {
@@ -74,9 +78,7 @@ df = df.rename(columns=ren_col)
 
 ### 3. Подключение к БД Postgres (Docker). Разово создаем витрину (если нужно).
 
-from sqlalchemy import create_engine, text
-
-conn = create_engine('postgresql://postgres:postgres@localhost:5051/postgres') # 5051 это бд под клиентом Airflow
+conn = create_engine(f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@localhost:5432/{POSTGRES_DB}') # postgres docker
 cursor = conn.connect()
 
 # Создаю витрину если нужно
@@ -182,3 +184,10 @@ if df_test_db.empty:
 else:
     logging.error("Есть дубликаты")
     logging.error(df_test_db.to_string())
+
+#Общее кол-во сохраненных свечей
+sql = '''
+    SELECT COUNT(*) FROM candles;
+'''
+df_test_db = pd.read_sql(sql, conn)
+logging.info(f"Общее кол-во сохраненных свечей: {df_test_db.iloc[0, 0]}")

@@ -1,21 +1,50 @@
 # T-Invest API to Postgres ETL Pipeline
 
-## Описание
-ETL-пайплайн для загрузки биржевых свечей из API T-Invest в PostgreSQL.
+Простой ETL-пайплайн для загрузки биржевых свечей из API T-Invest в PostgreSQL.
+
+## Что делает
+Стягивает свечи по заданному тикеру и сохраняет в БД. Если запустить повторно — новые данные добавятся, старые не перезатрутся (инкрементальная загрузка).
 
 ## Технологии
 - Python (requests, pandas, sqlalchemy)
-- PostgreSQL (Docker)
+- PostgreSQL (в Docker)
 - API T-Invest
 
 ## Структура
-- `app.py` — основной скрипт загрузки
-- `docker-compose.yml` (взят отсюда https://github.com/finloop/airflow-postgres-superset-on-docker#)
+```
+app.py                 # основной скрипт
+docker-compose.yml     # подъем PostgreSQL
+.env.example           # шаблон для .env
+.env                   # твои личные данные (не в репозитории)
+requirements.txt       # зависимости
+```
 
 ## Как запустить
-1. Создать .env с T_TOKEN
-2. docker-compose up -d
-3. python app.py
 
-## Результат
-Данные сохраняются в таблицу candles с инкрементальной загрузкой.
+1. Скопируй и заполни `.env`:
+```bash
+cp .env.example .env
+# открой .env и впиши свой T_TOKEN
+```
+
+2. Подними базу:
+```bash
+docker-compose up -d
+```
+
+3. Запусти скрипт:
+```bash
+python app.py
+```
+
+## Что изменилось в последней версии
+
+**Теперь подключение к БД идет через переменные из `.env`**, а не зашито в коде:
+- было: `postgresql://postgres:postgres@localhost:5432/dwh_data`
+- стало: `postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@localhost:5432/{POSTGRES_DB}`
+
+**Плюс** полностью переписан `docker-compose.yml` — теперь он свой, а не скопированный из стороннего репозитория.
+
+**Добавлен вывод статистики** после загрузки — скрипт теперь показывает общее количество свечей, сохраненных в базе. Можно сразу видеть результат работы и контролировать, что данные действительно пополняются.
+
+**Добавлен `sql.ipynb`** — Jupyter-ноутбук с шаблоном для работы с БД через SQLAlchemy. Удобно писать и тестировать запросы, сразу видеть результат в виде DataFrame, не запуская каждый раз основной скрипт. Полезно для анализа данных и отладки.
