@@ -1,5 +1,6 @@
 ### 1.Работа с API. Извлечение данных изи OpenAPI T-Invest.
 import os
+import re
 import requests
 import logging
 import pandas as pd
@@ -67,14 +68,16 @@ df['interval'] = intervals_dict[interval]
 df['figi'] = figi
 
 
-ren_col = {
-    'isComplete': 'is_complete',
-    'candleSource': 'candle_source',
-    'volumeBuy': 'volume_buy',
-    'volumeSell': 'volume_sell'
-}
+def camel_to_snake(name):
+    """Преобразует camelCase в snake_case"""
+    # Вставляем _ перед заглавными буквами (кроме первой)
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name)
 
-df = df.rename(columns=ren_col)
+    return name.lower()
+
+# Применяем ко всем столбцам
+df.columns = [camel_to_snake(col) for col in df.columns]
 
 ### 3. Подключение к БД Postgres (Docker). Разово создаем витрину (если нужно).
 
