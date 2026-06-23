@@ -1,4 +1,4 @@
-from ..src.base_client import BaseClient
+from .base_client import BaseClient
 
 class InstrumentsClient(BaseClient):
     def get_assets(self, instrument_type="stock"):

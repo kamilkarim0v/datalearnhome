@@ -3,7 +3,7 @@
 Учебный ETL-пайплайн для загрузки биржевых свечей из API T-Invest в PostgreSQL.
 
 ## Текущий статус
-Проект в активной разработке. Сейчас — этап исследования API и подготовки модулей для загрузки данных. Код пока простой (без ООП), но с полным пониманием каждого действия.
+Проект в активной разработке. В процессе реализации модульная ООП-архитектура, добавлен Airflow для оркестрации, этап настройки пайплайна и подготовки к расширению.
 
 ## Что делает
 Стягивает свечи по заданному тикеру и сохраняет в БД. Если запустить повторно — новые данные добавятся, старые не перезатрутся (инкрементальная загрузка).
@@ -12,18 +12,23 @@
 - Python (requests, pandas, sqlalchemy)
 - PostgreSQL (в Docker)
 - API T-Invest
+- Airflow (в Docker)
 
 ## Структура
 ```
-├── main.py                 # точка входа
+├── main.py                 # точка входа для ручного запуска
 ├── src/
 │   ├── api_client.py       # работа с T-Invest API
 │   ├── db_manager.py       # работа с PostgreSQL
 │   └── etl_pipeline.py     # ETL-логика
+├── airflow/
+│   ├── dags/               # DAG-файлы Airflow
+│   ├── logs/               # логи Airflow
+│   └── plugins/            # плагины Airflow
 ├── dev/                    # экспериментальные ноутбуки
 │   ├── get_assets.ipynb
 │   └── get_currencies.ipynb
-├── docker-compose.yml
+├── docker-compose.yml      # теперь с Postgres + Airflow
 ├── .env.example
 ├── .env
 ├── sql.ipynb
@@ -38,15 +43,23 @@ cp .env.example .env
 # открой .env и впиши свой T_TOKEN
 ```
 
-2. Подними базу:
+2. Создай необходимые папки для Airflow:
+```bash
+mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins
+```
+
+3. Подними все сервисы через Docker Compose:
 ```bash
 docker-compose up -d
 ```
+Теперь поднимаются одновременно PostgreSQL и Airflow.
 
-3. Запусти скрипт:
+4. Запусти пайплайн:
+- **Вручную** — выполни:
 ```bash
-python get_candles.py
+python main.py --figi BBG004730N88 --interval 15min --days 1
 ```
+
 
 ---
 
@@ -133,5 +146,18 @@ python main.py --figi BBG004730N88 --interval 15min --days 1
 ```
 
 **Что дальше:** Архитектура готова к расширению. В планах добавить загрузку других сущностей (акции, валюты) через ту же структуру — просто создавать новые ETL-классы.
+
+---
+
+### 2026-06-23
+- **Добавлен Airflow в сборку** — теперь пайплайн можно запускать по расписанию
+- Обновлен `docker-compose.yml` (Postgres + Airflow)
+- Обновлен `.env.example` с новыми переменными для Airflow
+- Добавлена структура папок для Airflow (`dags/`, `logs/`, `plugins/`)
+- Перед запуском требуется создать папки:
+
+```bash
+mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins
+```
 
 ---
