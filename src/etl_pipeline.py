@@ -69,5 +69,5 @@ class CandlesETL:
         self.extract()
         self.transform()
         self.load()
-        self.db.close()
+        # self.db.close()
         logger.info("ETL пайплайн завершён успешно")

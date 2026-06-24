@@ -42,6 +42,7 @@ services:
       - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_airflow/${AIRFLOW_DB_NAME}
       - AIRFLOW_UID=${AIRFLOW_UID}
+      - POSTGRES_HOST=db
     depends_on:
       - postgres_airflow
       - redis
@@ -57,6 +58,7 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
     environment:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_airflow/${AIRFLOW_DB_NAME}
       - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
@@ -66,11 +68,14 @@ services:
       - AIRFLOW__WEBSERVER__PORT=8080
       - AIRFLOW__WEBSERVER__SECRET_KEY=my-super-secret-key-change-it
       - AIRFLOW__WEBSERVER__COOKIE_SECURE=False
+      - POSTGRES_HOST=db
     depends_on:
       - postgres_airflow
       - redis
       - airflow-init
     restart: always
+    env_file:
+      - .env
 
   #airflow-scheduler
   airflow-scheduler:
@@ -80,16 +85,20 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
     environment:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_airflow/${AIRFLOW_DB_NAME}
       - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_airflow/${AIRFLOW_DB_NAME}
       - AIRFLOW_UID=${AIRFLOW_UID}
+      - POSTGRES_HOST=db
     depends_on:
       - postgres_airflow
       - redis
       - airflow-init
     restart: always
+    env_file:
+      - .env
 
   #airflow-worker
   airflow-worker:
@@ -99,16 +108,20 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
     environment:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_airflow/${AIRFLOW_DB_NAME}
       - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
       - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_airflow/${AIRFLOW_DB_NAME}
       - AIRFLOW_UID=${AIRFLOW_UID}
+      - POSTGRES_HOST=db
     depends_on:
       - postgres_airflow
       - redis
       - airflow-init
     restart: always
+    env_file:
+      - .env
   
 
 volumes:

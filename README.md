@@ -16,19 +16,20 @@
 
 ## Структура
 ```
-├── main.py                 # точка входа для ручного запуска
+├── main.py                      # точка входа для ручного запуска
 ├── src/
-│   ├── api_client.py       # работа с T-Invest API
-│   ├── db_manager.py       # работа с PostgreSQL
-│   └── etl_pipeline.py     # ETL-логика
+│   ├── api_client.py            # работа с T-Invest API
+│   ├── db_manager.py            # работа с PostgreSQL
+│   └── etl_pipeline.py          # ETL-логика
 ├── airflow/
-│   ├── dags/               # DAG-файлы Airflow
-│   ├── logs/               # логи Airflow
-│   └── plugins/            # плагины Airflow
-├── dev/                    # экспериментальные ноутбуки
+│   ├── dags/
+│   │   └── candles_etl_dag.py   # DAG для ежедневного запуска
+│   ├── logs/                    # логи Airflow
+│   └── plugins/                 # плагины Airflow
+├── dev/                         # экспериментальные ноутбуки
 │   ├── get_assets.ipynb
 │   └── get_currencies.ipynb
-├── docker-compose.yml      # теперь с Postgres + Airflow
+├── docker-compose.yml           # Postgres + Airflow
 ├── .env.example
 ├── .env
 ├── sql.ipynb
@@ -65,7 +66,7 @@ python main.py --figi BBG004730N88 --interval 15min --days 1
 
 ## О проекте
 
-Проект родился из желания каждый день делать коммиты и учиться на практике, а не просто смотреть видео. Постепенно он обрастает смыслом: от простого скрипта к полноценному приложению.
+Проект - вызов самому себе "100 дней коммитов на GitHub". Постепенно проект будет обрастать каким-то смыслом и логикой.
 
 Пока это учебный pet-проект, но в планах:
 - Переписать код в ООП-стиле
@@ -159,5 +160,18 @@ python main.py --figi BBG004730N88 --interval 15min --days 1
 ```bash
 mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins
 ```
+
+
+---
+
+## 2026-06-24 Что изменилось
+
+**Добавлен DAG `candles_etl_dag.py`** — теперь пайплайн автоматически запускается каждый день в 9:00.
+
+**Обновлён `docker-compose.yml`:** сервис Airflow монтирует папку `src/` и использует переменные окружения (переопределён `POSTGRES_HOST=db` для доступа к БД внутри контейнера).
+
+**Расширен `.env.example`:** добавлена переменная `POSTGRES_HOST` (по умолчанию `localhost`), чтобы код одинаково работал локально и в Airflow.
+
+**Улучшена обработка дубликатов:** при повторных запусках проверяется первичный ключ (`time`, `figi`, `interval`) — старые записи обновляются, новыерые записи обновляются, добавляются. Скрипт новые добавляются. Скрипт устойчив к мног устойчив к многократным вызовам.
 
 ---

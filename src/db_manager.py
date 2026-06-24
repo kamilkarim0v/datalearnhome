@@ -16,8 +16,10 @@ class DatabaseManager:
         user = os.getenv('POSTGRES_USER')
         password = os.getenv('POSTGRES_PASSWORD')
         db = os.getenv('POSTGRES_DB')
-        self.engine = create_engine(f'postgresql://{user}:{password}@localhost:5432/{db}')
-        self.connection = self.engine.connect()
+        host = os.getenv('POSTGRES_HOST', 'localhost')
+        # self.engine = create_engine(f'postgresql://{user}:{password}@localhost:5432/{db}')
+        self.engine = create_engine(f'postgresql://{user}:{password}@{host}:5432/{db}')
+        # self.connection = self.engine.connect()
 
     def create_candles_table(self):
         """Создаёт таблицу candles, если её нет."""
@@ -46,8 +48,10 @@ class DatabaseManager:
                 PRIMARY KEY (time, figi, interval)
             )
         '''
-        self.connection.execute(text(sql))
-        self.connection.commit()
+
+        with self.engine.begin() as conn:
+            conn.execute(text(sql))
+
         logger.info("Таблица candles создана или уже существует")
 
     def create_temp_table(self):
@@ -78,14 +82,21 @@ class DatabaseManager:
                 PRIMARY KEY (time, figi, interval)
             )
         '''
-        self.connection.execute(text(sql))
-        self.connection.commit()
+        with self.engine.begin() as conn:
+            conn.execute(text(sql))
         logger.info("Временная таблица создана")
 
     def insert_temp_table(self, df: pd.DataFrame):
         """Вставляет DataFrame в temp_candles."""
+        # Удаляем дубликаты (был случай, когда API выдало несколько строк с одинаковыми параметрами)
+        duplicates_before = len(df)
+        df = df.drop_duplicates(subset=['time', 'figi', 'interval'], keep='first')
+        duplicates_after = len(df)
+        if duplicates_before != duplicates_after:
+            logger.warning(f"Удалено {duplicates_before - duplicates_after} дубликатов во временной таблице")
+
         df.to_sql('temp_candles', self.engine, if_exists='append', index=False, method='multi')
-        logger.info(f"Загружено {len(df)} строк в temp_candles")
+        logger.info(f"Загружено {duplicates_after} строк в temp_candles")
 
     def merge_temp_to_main(self):
         """Инкрементальная загрузка из temp в основную таблицу."""
@@ -97,8 +108,8 @@ class DatabaseManager:
             INSERT INTO candles
             SELECT * FROM temp_candles;
         '''
-        self.connection.execute(text(sql))
-        self.connection.commit()
+        with self.engine.begin() as conn:
+            conn.execute(text(sql))
         logger.info("Инкрементальная загрузка завершена")
 
     def check_duplicates(self) -> bool:
@@ -124,7 +135,7 @@ class DatabaseManager:
         df = pd.read_sql(sql, self.engine)
         return df.iloc[0, 0]
 
-    def close(self):
-        """Закрывает соединение с БД."""
-        self.connection.close()
-        logger.info("Соединение с БД закрыто")
+    # def close(self):
+    #     """Закрывает соединение с БД."""
+    #     self.connection.close()
+    #     logger.info("Соединение с БД закрыто")
