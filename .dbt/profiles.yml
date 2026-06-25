@@ -1,0 +1,16 @@
+config:
+  use_colors: True
+
+# Имя вашего dbt-проекта (можете придумать свое, например, 'my_dbt_project')
+datalearnhome_dbt_project:
+  outputs:
+    dev:
+      type: postgres
+      threads: 1
+      host: db # <-- Важно! Это имя сервиса PostgreSQL в вашем docker-compose.yml
+      port: 5432
+      user: "{{ env_var('POSTGRES_USER') }}"
+      pass: "{{ env_var('POSTGRES_PASSWORD') }}"
+      dbname: "{{ env_var('POSTGRES_DB') }}"
+      schema: dbt_dev # Схема, где dbt будет создавать таблицы/представления
+  target: dev

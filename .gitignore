@@ -11,3 +11,6 @@ airflow/dags/__pycache__/
 airflow/plugins/__pycache__/
 *.pyc
 __pycache__/
+.dev/.user.yml
+.dbt/.user.yml
+dbt/target

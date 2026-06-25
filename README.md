@@ -29,6 +29,12 @@
 ├── dev/                         # экспериментальные ноутбуки
 │   ├── get_assets.ipynb
 │   └── get_currencies.ipynb
+├── .dbt/                        # конфигурация dbt
+│   └── profiles.yml
+├── dbt/                         # dbt-проект
+│   ├── models/                  # SQL-модели (hello.sql)
+│   └── dbt_project.yml
+├── Dockerfile                   # для сборки dbt-образа
 ├── docker-compose.yml           # Postgres + Airflow
 ├── .env.example
 ├── .env
@@ -161,7 +167,6 @@ python main.py --figi BBG004730N88 --interval 15min --days 1
 mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins
 ```
 
-
 ---
 
 ## 2026-06-24 Что изменилось
@@ -175,3 +180,23 @@ mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins
 **Улучшена обработка дубликатов:** при повторных запусках проверяется первичный ключ (`time`, `figi`, `interval`) — старые записи обновляются, новыерые записи обновляются, добавляются. Скрипт новые добавляются. Скрипт устойчив к мног устойчив к многократным вызовам.
 
 ---
+
+### 2026-06-25 Что изменилось
+
+**Добавлен dbt в стек**
+
+- Создан `Dockerfile` для dbt (образ на основе Python 3.11 + dbt-core + dbt-postgres).
+- Добавлен сервис `dbt` в `docker-compose.yml` с монтированием папок `./dbt` и `./.dbt`.
+- Настроен `profiles.yml` с подключением к основной БД через переменные окружения (`{{ env_var('...') }}`).
+- Создан минимальный `dbt_project.yml`.
+- Создана и успешно выполнена первая модель `hello.sql` (представление в схеме `dbt_dev`).
+
+**Проверено:**
+- `docker compose exec dbt dbt debug` — все проверки пройдены.
+- `docker compose exec dbt dbt run` — модель создана в БД.
+
+**Как запустить dbt:**
+```bash
+docker compose exec dbt dbt run   # выполнить все модели
+docker compose exec dbt dbt debug # проверить подключение к БД
+```

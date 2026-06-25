@@ -123,6 +123,22 @@ services:
     env_file:
       - .env
   
+  #dbt-service
+  dbt:
+    build: . # Собираем образ из Dockerfile в текущей папке
+    container_name: dbt
+    entrypoint: [""]
+    command: ["sleep", "infinity"]
+    volumes:
+      - ./dbt:/usr/app/dbt
+      - ./.dbt:/root/.dbt
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    depends_on:
+      - db
+    restart: "no"
 
 volumes:
   postgres_data:
