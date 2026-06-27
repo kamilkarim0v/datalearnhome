@@ -24,7 +24,6 @@ class MarketDataClient(BaseClient):
             "10sec": "CANDLE_INTERVAL_10_SEC",
             "30sec": "CANDLE_INTERVAL_30_SEC"
         }
-
         payload = {
             "figi": figi,
             "from": from_dt.isoformat(),
