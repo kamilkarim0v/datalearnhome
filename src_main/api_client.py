@@ -1,6 +1,7 @@
 import os
 import requests
 import logging
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -23,7 +24,7 @@ class BaseClient:
 
     def _post(self, endpoint:str, payload:dict) -> dict:
         """Отправляем POST-запрос к API."""
-        url = f'{self.base_url}/{endpoint}'
+        url = f'{self.base_url}.{endpoint}'
         response = requests.post(url, headers=self.headers, json=payload)
         if response.status_code == 200:
             return response.json()

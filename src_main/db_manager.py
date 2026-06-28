@@ -19,6 +19,31 @@ class DatabaseManager:
         host = os.getenv('POSTGRES_HOST', 'localhost')
         self.engine = create_engine(f'postgresql://{user}:{password}@{host}:5432/{db}')
 
+    def create_table(self, table_name, columns_type, primary_key = None):
+        """
+        Создание таблицы в базе данных.
+        """
+        
+        cols_def = ', '.join([f'{col} {typ}' for col, typ in columns_type])
+        pk_def = f', PRIMARY KEY ({primary_key})' if primary_key else ''
+        sql = f'''
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                {cols_def}
+                {pk_def}
+            );
+        '''
+
+        with self.engine.begin() as conn:
+            conn.execute(text(sql))
+        logger.info(f"Таблица {table_name} создана")
+
+
+    def insert_data(self, table_name, ):
+        """
+        Вставка данных в таблицу.
+        """
+
+
     def create_table_from_df(self, df, table_name, columns_type, primary_key):
         """
         Создание таблицы в базе данных из датафрейма.
