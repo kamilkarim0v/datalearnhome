@@ -1,7 +1,6 @@
 instrument_dict = {
     'instrument_service': [bond_by, bonds, create_favorite_group, currencies, currency_by, delete_favorite_group, dfa_by, dfas, edit_favorites, etfs, etf_by, find_instrument, future_by, futures, get_accrued_interest, get_asset_by, get_asset_reports, get_assets, get_bond_coupons, get_bond_events, get_brand_by, get_brands, get_consensus_forecasts, get_counties, get_dividends, get_favorite_groups, get_favorites, get_forecast_by, get_futures_margin, get_insider_deals, get_instrument_by, get_risk_rates, indicatives, news, option_by, deprecated_options, options_by, share_by, shares, structured_note_by, structured_notes, trading_schedules],
-    'market_data_service': [get_candles, get_close_prices, get_last_prices, get_last_traders, get_market_values, get_order_book,
-    get_tech_analysis, get_trading_status, get_trading_statuses],
+    'market_data_service': [get_candles, get_close_prices, get_last_prices, get_last_traders, get_market_values, get_order_book, get_tech_analysis, get_trading_status, get_trading_statuses],
     'operation_service': [...],
     'orders_service': [...],
     'sandbox_service': [...],
