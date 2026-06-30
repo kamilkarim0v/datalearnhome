@@ -24,7 +24,7 @@ class DatabaseManager:
         Создание таблицы в базе данных.
         """
         
-        cols_def = ', '.join([f'{col} {typ}' for col, typ in columns_type])
+        cols_def = ', '.join([f'{col} {typ}' for col, typ in columns_type.items()])
         pk_def = f', PRIMARY KEY ({primary_key})' if primary_key else ''
         sql = f'''
             CREATE TABLE IF NOT EXISTS {table_name} (
@@ -36,6 +36,16 @@ class DatabaseManager:
         with self.engine.begin() as conn:
             conn.execute(text(sql))
         logger.info(f"Таблица {table_name} создана")
+
+    def create_schema(self, schema_name):
+        """
+        Создание схемы в базе данных.
+        """
+        sql = f'CREATE SCHEMA IF NOT EXISTS {schema_name}'
+
+        with self.engine.begin() as conn:
+            conn.execute(text(sql))
+        logger.info(f"Схема {schema_name} создана")
 
 
     def insert_data(self, table_name, ):
