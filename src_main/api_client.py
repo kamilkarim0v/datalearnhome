@@ -27,7 +27,7 @@ class BaseClient:
         url = f'{self.base_url}.{endpoint}'
         response = requests.post(url, headers=self.headers, json=payload)
         if response.status_code == 200:
-            return response.json()
+            return response.json(), response.status_code
         else:
             response.raise_for_status()
             logger.error(f'Ошибка при запросе {response.url}')
