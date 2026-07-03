@@ -6,7 +6,7 @@ import sys
 # Добавляем путь к корню проекта
 sys.path.insert(0, '/opt/airflow')
 
-from src_main.market_data import MarketDataService
+from src_main.instrument_service import InstrumentService
 from src_main.db_manager import DatabaseManager 
 from src_main.api_job_logger import ApiJobLogger
 from datetime import timedelta, datetime, timezone
@@ -22,7 +22,7 @@ default_args = {
 
 # Определяем DAG
 dag = DAG(
-    'raw_candles_dag', # уникальное имя
+    'raw_assets_dag', # уникальное имя
     default_args=default_args,
     description='Запрос в T-Invest API и загрузка результатов в Postgres',
     schedule_interval='0 9 * * *', # каждый день в 9:00
@@ -49,14 +49,12 @@ def init_db():
 def extract_api_jobs(**context):
     """Извлекает данные из API и сохраняет их в XCom."""
 
-    client = MarketDataService()
+    client = InstrumentService()
 
     # пока зафиксим жестко
-    figi = "BBG004730N88"
-    interval = "15min"
-    to_dt = datetime.now(timezone.utc)
-    from_dt = to_dt - timedelta(days=1)
-    response, status_code, endpoint, payload = client.get_candles(figi, from_dt, to_dt, interval)
+    instrument_type = 'share'
+    instrument_status = 'all'
+    response, status_code, endpoint, payload = client.get_assets(instrument_type, instrument_status)
 
     # Сохраняем в XCom для следующей задачи
     context['ti'].xcom_push(key='response', value=response)

@@ -4,8 +4,15 @@ from .api_client import BaseClient
 
 logger = logging.getLogger(__name__)
 
-class MarketDataClient(BaseClient):
-    def get_candles(self, figi: str, from_dt: datetime, to_dt: datetime, interval: str) -> tuple[dict, str, dict]:
+class MarketDataService(BaseClient):
+
+    def __init__(self):
+        super().__init__()
+        self.endpoint = "MarketDataService/GetCandles"
+
+    def get_candles(self, figi: str, from_dt: datetime, to_dt: datetime, interval: str) -> tuple[dict, str, str, dict]:
+
+        
         intervals_map = {
             "1min": "CANDLE_INTERVAL_1_MIN",
             "5min": "CANDLE_INTERVAL_5_MIN",
@@ -32,6 +39,7 @@ class MarketDataClient(BaseClient):
         }
 
         logger.info(f"Запрос к API: figi={figi}, interval={interval}, from={from_dt}")
-        endpoint = "MarketDataService/GetCandles"
         
-        return self._post(endpoint, payload), endpoint, payload
+        response, status_code = self._post(self.endpoint, payload)
+
+        return response, status_code, self.endpoint, payload
