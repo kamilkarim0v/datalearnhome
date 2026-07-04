@@ -8,10 +8,13 @@ class MarketDataService(BaseClient):
 
     def __init__(self):
         super().__init__()
-        self.endpoint = "MarketDataService/GetCandles"
+        self.endpoint_base = "MarketDataService"
 
-    def get_candles(self, figi: str, from_dt: datetime, to_dt: datetime, interval: str) -> tuple[dict, str, str, dict]:
-
+    def get_candles(self, figi: str, from_dt: datetime, to_dt: datetime, interval: str) -> tuple[dict, int, str, dict]:
+        """
+        Получение свечей по FIGI и интервалу
+        """
+        endpoint = f"{self.endpoint_base}/GetCandles"
         
         intervals_map = {
             "1min": "CANDLE_INTERVAL_1_MIN",
@@ -40,6 +43,6 @@ class MarketDataService(BaseClient):
 
         logger.info(f"Запрос к API: figi={figi}, interval={interval}, from={from_dt}")
         
-        response, status_code = self._post(self.endpoint, payload)
+        response, status_code = self._post(endpoint, payload)
 
-        return response, status_code, self.endpoint, payload
+        return response, status_code, endpoint, payload

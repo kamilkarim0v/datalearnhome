@@ -48,10 +48,11 @@ class DatabaseManager:
         logger.info(f"Схема {schema_name} создана")
 
 
-    def insert_data(self, table_name, ):
+    def insert_data(self, table_name, data):
         """
         Вставка данных в таблицу.
         """
+        pass
 
 
     def create_table_from_df(self, df, table_name, columns_type, primary_key):

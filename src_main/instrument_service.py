@@ -7,9 +7,14 @@ logger = logging.getLogger(__name__)
 class InstrumentService(BaseClient):
     def __init__(self):
         super().__init__()
-        self.endpoint = 'InstrumentsService/GetAssets'
+        self.endpoint_base = 'InstrumentsService'
 
-    def get_assets(self, instrument_type: str = 'share', instrument_status: str = 'all') -> tuple[dict, str, str, dict]:
+    def get_assets(self, instrument_type: str = 'share', instrument_status: str = 'all') -> tuple[dict, int, str, dict]:
+        """
+        Получение списка активов по типу и статусу
+        """
+
+        endpoint = f"{self.endpoint_base}/GetAssets"
 
         instrument_type_map = {
             "share": "INSTRUMENT_TYPE_SHARE",
@@ -37,8 +42,8 @@ class InstrumentService(BaseClient):
             "instrumentStatus": instrument_status_map[instrument_status]
         }
 
-        logger.info(f"Запрос к {self.endpoint}: {instrument_type = }, {instrument_status = }")
+        logger.info(f"Запрос к {endpoint}: {instrument_type = }, {instrument_status = }")
 
-        response, status_code = self._post(self.endpoint, payload)
+        response, status_code = self._post(endpoint, payload)
 
-        return response, status_code, self.endpoint, payload
+        return response, status_code, endpoint, payload
