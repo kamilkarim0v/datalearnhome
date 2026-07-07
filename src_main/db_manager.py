@@ -55,7 +55,7 @@ class DatabaseManager:
         pass
 
 
-    def create_table_from_df(self, df, table_name, columns_type, primary_key):
+    def create_table_from_df(self, df, table_name, columns_type = None, primary_key = None):
         """
         Создание таблицы в базе данных из датафрейма.
         :param df: Датафрейм с данными для создания таблицы.
