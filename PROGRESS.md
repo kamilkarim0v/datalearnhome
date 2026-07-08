@@ -120,3 +120,13 @@
 - [x] Протестировал запрос на существующих данных — убедился, что `from_dt` и `to_dt` теперь соответствуют правильным диапазонам (например, 25 дней для 15min).
 - [x] Спроектировал архитектуру DAG `backfill_candles`: чтение блоков → последовательная загрузка через `MarketDataService` → логирование в `raw.extract_api_jobs` с паузами между запросами.
 - [x] Начал планировать интеграцию с `dim_calendar` и `interval_limits` в рамках единого процесса дозагрузки.
+
+### 8 июля — Создание DAG для staging-слоя и проектирование таблицы
+
+- [x] Начал разработку DAG `staging_candles_dag` для трансформации сырых данных из `raw.extract_api_jobs` в очищенный слой `staging.candles`.
+- [x] Спроектировал структуру таблицы `staging.candles`:
+  - Колонки: `datetime`, `figi`, `interval`, `open`, `close`, `high`, `low`, `is_complete`, `candle_source`, `volume`, `volume_buy`, `volume_sell`, `source_job_id`, `loaded_at`.
+  - `PRIMARY KEY (datetime, figi, interval)` для гарантии уникальности.
+  - Добавил служебные поля `source_job_id` (ссылка на raw) и `loaded_at` (время загрузки).
+- [x] Написал функцию `init_db()` для создания схемы `staging` и таблицы `candles` (если не существуют).
+- [x] Интегрировал `init_db()` как первую задачу в DAG (подготовка инфраструктуры перед трансформацией).
