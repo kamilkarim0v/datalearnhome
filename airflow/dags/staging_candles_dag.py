@@ -54,6 +54,3 @@ def init_db():
     db.create_schema(schema_name='staging')
     db.create_table(table_name='staging.candles', columns_type=db_table_col, primary_key=primary_key)
 
-
-
-
