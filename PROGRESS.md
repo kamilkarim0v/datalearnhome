@@ -145,3 +145,17 @@
   1. `raw_candles_dag` (загрузка в raw)
   2. **dbt-проект** (трансформации staging → mart), запускаемый через Cosmos
   3. (в будущем) `backfill_candles` как часть dbt или отдельный DAG
+
+### 10 июля — Настройка dbt + Cosmos в Airflow
+
+- [x] Создал и настроил Dockerfile.airflow с установкой `astronomer-cosmos`, `dbt-core`, `dbt-postgres`.
+- [x] Пересобрал образы Airflow (успешно, без ошибок).
+- [x] Написал DAG `dbt_staging_dag` через Cosmos, который автоматически запускает dbt-модели.
+- [x] Устранил ошибку подключения к БД в Cosmos — проверил и исправил Connection `postgres_default` в Airflow.
+- [x] Запустил DAG — dbt выполнил модель `stg_candles`, создал представление (view) в схеме `public`.
+- [x] Обнаружил, что dbt создал схему `public_staging` вместо `staging` — проблема в несовпадении имени проекта в `dbt_project.yml`.
+- [x] Заметил, что в UI появились два DAG: ручной `staging_candles_dag` и `dbt_staging_dag` (созданный Cosmos).
+- [ ] Исправить `dbt_project.yml` (заменить `my_dbt_project` на `datalearnhome`).
+- [ ] Проверить модель `stg_candles.sql` — убрать лишнюю конфигурацию схемы.
+- [ ] Перезапустить DAG, чтобы таблица создалась в схеме `staging`.
+- [ ] Решить, оставить ли ручной DAG `staging_candles_dag` или отключить.

@@ -34,7 +34,10 @@ services:
   
   #airflow init
   airflow-init:
-    image: apache/airflow:2.10.0
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    # image: apache/airflow:2.10.0
     command: >
       bash -c "airflow db migrate && airflow db upgrade && airflow users create --username ${AIRFLOW_ADMIN_USER} --password ${AIRFLOW_ADMIN_PASSWORD} --firstname Admin --lastname User --role Admin --email ${AIRFLOW_ADMIN_EMAIL}"
     environment:
@@ -50,7 +53,10 @@ services:
   
   #airflow-webserver
   airflow-webserver:
-    image: apache/airflow:2.10.0
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    # image: apache/airflow:2.10.0
     command: webserver
     ports:
       - "8080:8080"
@@ -60,6 +66,7 @@ services:
       - ./airflow/plugins:/opt/airflow/plugins
       - ./src:/opt/airflow/src
       - ./src_main:/opt/airflow/src_main
+      - ./dbt:/opt/airflow/dbt
     environment:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_airflow/${AIRFLOW_DB_NAME}
       - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
@@ -80,7 +87,10 @@ services:
 
   #airflow-scheduler
   airflow-scheduler:
-    image: apache/airflow:2.10.0
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    # image: apache/airflow:2.10.0
     command: scheduler
     volumes:
       - ./airflow/dags:/opt/airflow/dags
@@ -88,6 +98,7 @@ services:
       - ./airflow/plugins:/opt/airflow/plugins
       - ./src:/opt/airflow/src
       - ./src_main:/opt/airflow/src_main
+      - ./dbt:/opt/airflow/dbt
     environment:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_airflow/${AIRFLOW_DB_NAME}
       - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
@@ -112,6 +123,7 @@ services:
       - ./airflow/plugins:/opt/airflow/plugins
       - ./src:/opt/airflow/src
       - ./src_main:/opt/airflow/src_main
+      - ./dbt:/opt/airflow/dbt
     environment:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_airflow/${AIRFLOW_DB_NAME}
       - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0

@@ -1,5 +1,9 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from cosmos import DbtDag, ProjectConfig, ProfileConfig
+from cosmos.profiles import PostgresUserPasswordProfileMapping
+from datetime import datetime
+from pathlib import Path
 from datetime import datetime, timedelta
 import sys
 
@@ -54,3 +58,25 @@ def init_db():
     db.create_schema(schema_name='staging')
     db.create_table(table_name='staging.candles', columns_type=db_table_col, primary_key=primary_key)
 
+
+
+profile_config = ProfileConfig(
+    profile_name="default",
+    target_name="dev",
+    profile_mapping=PostgresUserPasswordProfileMapping(
+        conn_id="postgres_default",  # твой Connection в Airflow
+        profile_args={"schema": "public"},
+    ),
+)
+
+dbt_project_path = Path("/opt/airflow/dbt")
+
+cosmos_dag = DbtDag(
+    project_config=ProjectConfig(dbt_project_path),
+    profile_config=profile_config,
+    schedule_interval="0 10 * * *",  # после загрузки raw
+    start_date=datetime(2026, 6, 1),
+    catchup=False,
+    dag_id="dbt_staging_dag",
+    default_args={"retries": 2},
+)
