@@ -20,4 +20,4 @@ models:
   datalearnhome:
     staging:
       +materialized: table
-      +schema: staging
+      # +schema: staging

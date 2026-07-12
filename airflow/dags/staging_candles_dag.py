@@ -23,40 +23,40 @@ default_args = {
 }
 
 # Определяем DAG
-dag = DAG(
-    'staging_candles_dag', # уникальное имя
-    default_args=default_args,
-    description='Запрос в T-Invest API и загрузка результатов в Postgres',
-    schedule_interval='0 9 * * *', # каждый день в 9:00
-    catchup=False, # не запускать пропущенные дни
-    tags=['staging', 'etl'],
-)
+# dag = DAG(
+#     'staging_candles_dag', # уникальное имя
+#     default_args=default_args,
+#     description='Запрос в T-Invest API и загрузка результатов в Postgres',
+#     schedule_interval='0 9 * * *', # каждый день в 9:00
+#     catchup=False, # не запускать пропущенные дни
+#     tags=['staging', 'etl'],
+# )
 
-def init_db():
-    """Создаёт схему и таблицу, если их нет."""
-    db = DatabaseManager()
+# def init_db():
+#     """Создаёт схему и таблицу, если их нет."""
+#     db = DatabaseManager()
 
-    db_table_col = {
-    'datetime': 'TIMESTAMPTZ NOT NULL',
-    'figi': 'VARCHAR(255) NOT NULL',
-    'interval': 'VARCHAR(255) NOT NULL',
-    'open': 'DECIMAL(12,2)',
-    'close': 'DECIMAL(12,2)',
-    'high': 'DECIMAL(12,2)',
-    'low': 'DECIMAL(12,2)',
-    'is_complete': 'BOOLEAN',
-    'candle_source': 'VARCHAR(255)',
-    'volume': 'BIGINT',
-    'volume_buy': 'BIGINT',
-    'volume_sell': 'BIGINT',
-    'source_job_id': 'INTEGER',
-    'loaded_at': 'TIMESTAMPTZ DEFAULT NOW()'
-    }
+#     db_table_col = {
+#     'datetime': 'TIMESTAMPTZ NOT NULL',
+#     'figi': 'VARCHAR(255) NOT NULL',
+#     'interval': 'VARCHAR(255) NOT NULL',
+#     'open': 'DECIMAL(12,2)',
+#     'close': 'DECIMAL(12,2)',
+#     'high': 'DECIMAL(12,2)',
+#     'low': 'DECIMAL(12,2)',
+#     'is_complete': 'BOOLEAN',
+#     'candle_source': 'VARCHAR(255)',
+#     'volume': 'BIGINT',
+#     'volume_buy': 'BIGINT',
+#     'volume_sell': 'BIGINT',
+#     'source_job_id': 'INTEGER',
+#     'loaded_at': 'TIMESTAMPTZ DEFAULT NOW()'
+#     }
 
-    primary_key = ['datetime', 'figi', 'interval']
+#     primary_key = ['datetime', 'figi', 'interval']
 
-    db.create_schema(schema_name='staging')
-    db.create_table(table_name='staging.candles', columns_type=db_table_col, primary_key=primary_key)
+#     db.create_schema(schema_name='staging')
+#     db.create_table(table_name='staging.candles', columns_type=db_table_col, primary_key=primary_key)
 
 
 
@@ -65,7 +65,7 @@ profile_config = ProfileConfig(
     target_name="dev",
     profile_mapping=PostgresUserPasswordProfileMapping(
         conn_id="postgres_default",  # твой Connection в Airflow
-        profile_args={"schema": "public"},
+        profile_args={"schema": "staging"},
     ),
 )
 
