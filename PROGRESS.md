@@ -179,3 +179,14 @@
 - [x] Выявил проблему дублирования схемы: при наличии `+schema: staging` в `dbt_project.yml` и `profile_args={"schema": "staging"}` в профиле, dbt создавал таблицу в схеме `staging_staging`.
 - [x] Убрал `+schema: staging` из `dbt_project.yml`, оставив только схему в `ProfileConfig` — теперь dbt создаёт таблицу в корректной схеме `staging`.
 - [x] Убедился, что DAG `dbt_staging_dag` отрабатывает успешно — таблица `staging.candles` создаётся в правильной схеме.
+
+### 13 июля — Обсуждение архитектуры инкрементальной загрузки
+
+- [x] Настроил `RenderConfig(select=["staging"])` в DAG `staging_candles_dag.py` — теперь в Airflow выполняются только модели из папки `staging`.
+- [x] Провёл детальное обсуждение архитектуры инкрементальной загрузки:
+  - разделение на три модели (extract → temp → final)
+  - добавление колонки `min_candle_time` в `raw.extract_api_jobs`
+  - фильтрация на уровне raw-таблицы до разворачивания JSON
+  - использование `MAX(datetime)` из `staging.candles` для инкремента
+  - добавление PRIMARY KEY через `post_hook`
+- [x] Сформировал собственное целостное видение реализации, которое будет применено в коде (твой подход, не мой).
