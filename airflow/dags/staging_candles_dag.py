@@ -1,6 +1,6 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from cosmos import DbtDag, ProjectConfig, ProfileConfig
+from cosmos import DbtDag, ProjectConfig, ProfileConfig, RenderConfig
 from cosmos.profiles import PostgresUserPasswordProfileMapping
 from datetime import datetime
 from pathlib import Path
@@ -74,9 +74,12 @@ dbt_project_path = Path("/opt/airflow/dbt")
 cosmos_dag = DbtDag(
     project_config=ProjectConfig(dbt_project_path),
     profile_config=profile_config,
+    render_config=RenderConfig(
+        select = ['staging']
+    ),
     schedule_interval="0 10 * * *",  # после загрузки raw
     start_date=datetime(2026, 6, 1),
     catchup=False,
     dag_id="dbt_staging_dag",
-    default_args={"retries": 2},
+    default_args={"retries": 2},   
 )
