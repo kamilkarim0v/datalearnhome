@@ -25,7 +25,7 @@ class BaseClient:
     def _post(self, endpoint:str, payload:dict) -> dict:
         """Отправляем POST-запрос к API."""
         url = f'{self.base_url}.{endpoint}'
-        response = requests.post(url, headers=self.headers, json=payload)
+        response = requests.post(url, headers=self.headers, json=payload, verify=False)
         if response.status_code == 200:
             return response.json(), response.status_code
         else:
