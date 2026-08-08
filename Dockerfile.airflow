@@ -12,6 +12,10 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    update-ca-certificates
+
 # Возвращаемся к пользователю airflow
 USER airflow
 
@@ -20,3 +24,4 @@ RUN pip install --no-cache-dir \
     astronomer-cosmos==1.15.0 \
     dbt-core==1.8.0 \
     dbt-postgres==1.8.0
+
