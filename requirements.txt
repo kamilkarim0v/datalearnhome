@@ -8,4 +8,5 @@ numpy==2.4.6
 packaging==26.2
 
 # Для работы с API T-Invest (если используешь SDK, а не прямой REST)
-t-tech-investments==1.49.1
+# t-tech-investments устанавливается отдельно через индекс
+# pip install t-tech-investments --index-url https://opensource.tbank.ru/api/v4/projects/238/packages/pypi/simple
