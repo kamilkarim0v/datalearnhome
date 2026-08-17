@@ -24,3 +24,4 @@ SELECT
     source_job_id,
     CURRENT_TIMESTAMP AS loaded_at
 FROM raw_data
+WHERE (candle ->> 'isComplete')::BOOLEAN = TRUE
